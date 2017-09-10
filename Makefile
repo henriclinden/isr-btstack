@@ -22,18 +22,18 @@ CFLAGS += -g -Wall -Wmissing-prototypes -Wstrict-prototypes -Wshadow -Werror -Wu
 
 # Needed files
 CORE += \
-	btstack_memory.c            \
-	btstack_linked_list.c	    \
-	btstack_memory_pool.c       \
-	btstack_run_loop.c		    \
+	btstack_memory.c \
+	btstack_linked_list.c \
+	btstack_memory_pool.c \
+	btstack_run_loop.c \
 	btstack_util.c
 
 COMMON += \
-	ad_parser.c                 \
-	hci.c			            \
-	hci_cmd.c		            \
-	hci_dump.c		            \
-	l2cap.c			            \
+	ad_parser.c \
+	hci.c \
+	hci_cmd.c \
+	hci_dump.c \
+	l2cap.c \
 	l2cap_signaling.c
 
 GATT_CLIENT += \
@@ -47,7 +47,7 @@ SM += \
 
 # Using Posix platform but exchange UART for libusb as transport.
 CORE += main.c btstack_stdin_posix.c
-COMMON  += hci_transport_h2_libusb.c btstack_run_loop_posix.c le_device_db_fs.c btstack_link_key_db_fs.c wav_util.c
+COMMON += hci_transport_h2_libusb.c btstack_run_loop_posix.c le_device_db_fs.c btstack_link_key_db_fs.c wav_util.c
 
 # Use pkg-config for libusb
 CFLAGS  += $(shell pkg-config libusb-1.0 --cflags)
