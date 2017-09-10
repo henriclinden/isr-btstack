@@ -19,3 +19,7 @@ TBD
 ## Embedded
 TBD
 
+# Building
+To build the test apps use make.
+
+    make
