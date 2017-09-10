@@ -13,6 +13,10 @@ On Mac the built in Bluetooth stack will automatically assign all new adapter to
 
 This tells the macOS Bluetooth stack not to use any other Bluetooth hardware except for the builtin.
 
+The test apps depends on libusb. This can be installed using Homebrew.
+
+    brew install libusb
+
 ## Linux
 TBD
 
