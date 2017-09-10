@@ -1,6 +1,9 @@
-//
-// btstack_config.h for libusb port
-//
+/*
+ * Configuration of Bluetooth stack.
+ * Only enable Low Energy parts. Classic BT is not needed.
+ *
+ * Henric Lindén, rt-labs AB
+ */
 
 #ifndef __BTSTACK_CONFIG
 #define __BTSTACK_CONFIG
@@ -21,7 +24,7 @@
 //#define ENABLE_MICRO_ECC_FOR_LE_SECURE_CONNECTIONS
 #define ENABLE_LE_DATA_LENGTH_EXTENSION
 #define ENABLE_LOG_ERROR
-#define ENABLE_LOG_INFO 
+#define ENABLE_LOG_INFO
 //#define ENABLE_SCO_OVER_HCI
 //#define ENABLE_SDP_DES_DUMP
 

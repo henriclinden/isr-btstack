@@ -1,5 +1,6 @@
 /*
  * Connect to an serial port adapter from connecBlue / u-blox.
+ * Bounce back all data received.
  *
  * Henric Lindén, rt-labs AB
  */
@@ -12,6 +13,7 @@
 #include <ctype.h>
 
 #include "btstack.h"
+#include "queue.h"
 
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
@@ -27,6 +29,28 @@ static gatt_client_service_t serialport_service;
 static gatt_client_characteristic_t fifo_characteristic;
 static gatt_client_notification_t notification_registration;
 
+static queue_t packet_queue;
+
+/*
+static uint8_t* packet_dup(uint8_t* packet, uint16_t size)
+{
+    uint8_t* copy = malloc(size);
+    memcpy(copy, packet, size);
+    return copy;
+}
+*/
+
+static void packet_dump(const uint8_t* data, uint16_t size)
+{
+    printf("data[%2u] ", size);
+    for (int i = 0; i < size; i++) {
+        printf("%02x ", data[i]);
+    }
+    for (int i = 0; i < size; i++) {
+        printf("%c", isprint(data[i]) ? data[i] : '.');
+    }
+    printf("\n");
+}
 
 static void gatt_data_event_handler(uint8_t packet_type, uint16_t channel, uint8_t* packet, uint16_t size)
 {
@@ -41,17 +65,16 @@ static void gatt_data_event_handler(uint8_t packet_type, uint16_t channel, uint8
         case GATT_EVENT_NOTIFICATION:
             data = gatt_event_notification_get_value(packet);
             len = gatt_event_notification_get_value_length(packet);
-            printf("data[%2u] ", len);
-            for (int i = 0; i < len; i++) {
-                printf("%02x ", data[i]);
-            }
-            for (int i = 0; i < len; i++) {
-                printf("%c", isprint(data[i]) ? data[i] : '.');
-            }
-            printf("\n");
+            packet_dump(data, len);
+            gatt_client_write_value_of_characteristic(gatt_data_event_handler, connection_handle, fifo_characteristic.value_handle, len, (uint8_t*)data);
+            break;
+        case GATT_EVENT_INDICATION:
+            data = gatt_event_indication_get_value(packet);
+            len = gatt_event_indication_get_value_length(packet);
+            packet_dump(data, len);
+            gatt_client_write_value_of_characteristic(gatt_data_event_handler, connection_handle, fifo_characteristic.value_handle, len, (uint8_t*)data);
             break;
         case GATT_EVENT_QUERY_COMPLETE:
-            //gatt_client_write_value_of_characteristic(gatt_data_event_handler, connection_handle, fifo_characteristic.value_handle, 13, (uint8_t*)"Hello World\n\r");
             break;
         default:
             printf("Unhandled event: 0x%02x\n", hci_event_packet_get_type(packet));
@@ -73,7 +96,7 @@ static void gatt_characteristic_event_handler(uint8_t packet_type, uint16_t chan
         case GATT_EVENT_QUERY_COMPLETE:
             printf("Register notification handler and configure serialport FIFO characteristic for notify.\n");
             gatt_client_listen_for_characteristic_value_updates(&notification_registration, gatt_data_event_handler, connection_handle, &fifo_characteristic);
-            gatt_client_write_client_characteristic_configuration(gatt_data_event_handler, connection_handle, &fifo_characteristic, GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION);
+            gatt_client_write_client_characteristic_configuration(gatt_data_event_handler, connection_handle, &fifo_characteristic, GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_INDICATION);
             break;
         default:
             break;
@@ -160,6 +183,9 @@ int btstack_main(int argc, const char* argv[])
             printf_hexdump(cmdline_addr, 6);
         }
     }
+
+    // Setup queue for cache of incoming packages.
+    queue_init(&packet_queue);
 
     // Register HCI event callback
     hci_event_callback_registration.callback = &hci_event_handler;
