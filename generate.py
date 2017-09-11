@@ -32,8 +32,14 @@ for length in [10, 20, 30, 50, 100, 200, 300, 400, 500]:
 		t2 = time()
 		resp = sp.read(length)
 		d2 = time() - t2
-		if len(resp) == len(req) and resp == req:
-			print("{0:3d}: {1:0.5f} {2:0.5f} {3:0.5f} {4:0.5f}".format(length, d1, d2, length/d1, length/d2))
+		if len(resp) == len(req):
+			if resp == req:
+				print("{0:3d}: {1:0.5f} {2:0.5f} {3:0.5f} {4:0.5f}".format(length, d1, d2, length/d1, length/d2))
+			else:
+				print("Mismatch. Got {} bytes of {} but content differs.".format(len(resp), len(req)))
+				sp.flushInput()
+				sp.flushOutput()
+				sleep(0.1)
 		else:
 			print("Mismatch. Got {} bytes of {}".format(len(resp), len(req)))
 			sp.flushInput()

@@ -95,7 +95,7 @@ int main(int argc, const char* argv[])
     hci_dump_open("hci_dump.pklg", HCI_DUMP_PACKETLOGGER);
     log_info("Program name: %s", argv[0]);
 
-    // Init HCI
+    // Init HCI. This will use the first available Bluetooth dongle.
     hci_init(hci_transport_usb_instance(), NULL);
 
     // Add a hci event handler just for showing btstatck state to user.
