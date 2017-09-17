@@ -39,23 +39,23 @@ static void hci_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* p
             case BTSTACK_EVENT_STATE:
                 switch (btstack_event_state_get_state(packet)) {
                     case HCI_STATE_OFF:
-                        printf("[HCI_STATE_OFF]\n");
+                        fprintf(stderr, "[HCI_STATE_OFF]\n");
+                        exit(0);
                         break;
                     case HCI_STATE_INITIALIZING:
-                        printf("[HCI_STATE_INITIALIZING]\n");
+                        fprintf(stderr, "[HCI_STATE_INITIALIZING]\n");
                         break;
                     case HCI_STATE_WORKING:
-                        printf("[HCI_STATE_WORKING]\n");
+                        fprintf(stderr, "[HCI_STATE_WORKING]\n");
                         break;
                     case HCI_STATE_HALTING:
-                        printf("[HCI_STATE_HALTING]\n");
+                        fprintf(stderr, "[HCI_STATE_HALTING]\n");
                         break;
                     case HCI_STATE_SLEEPING:
-                        printf("[HCI_STATE_SLEEPING]\n");
+                        fprintf(stderr, "[HCI_STATE_SLEEPING]\n");
                         break;
                     case HCI_STATE_FALLING_ASLEEP:
-                        printf("[HCI_STATE_FALLING_ASLEEP]\n");
-                        break;
+                        fprintf(stderr, "[HCI_STATE_FALLING_ASLEEP]\n");
                         break;
                     default:
                         break;
@@ -71,7 +71,7 @@ static void sigint_handler(int param)
 {
     UNUSED(param);
 
-    printf("CTRL-C - SIGINT received, shutting down.\n");
+    fprintf(stderr, "CTRL-C - SIGINT received, shutting down.\n");
     log_info("sigint_handler: shutting down");
 
     // Reset anyway
