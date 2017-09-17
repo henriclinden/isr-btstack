@@ -58,7 +58,10 @@ SRCS = $(CORE) $(COMMON) $(GATT_CLIENT) $(ATT) $(SM)
 OBJS = $(SRCS:.c=.o)
 
 # Applications to build
-all: discover stream reflect
+all: discover stream reflect receive
+
+# Connect, receive 10k of data, disconnect.
+receive: $(OBJS)
 
 # Build and link the simple discover app
 discover: $(OBJS)
