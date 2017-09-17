@@ -25,6 +25,8 @@ static hci_con_handle_t connection_handle;
 static int fp = 0;
 static int nr_received_bytes = 0;
 
+static uint32_t start_time = 0;
+
 // connectBlue serialport service.
 static uint8_t serialport_service_uuid[] = {0x24, 0x56, 0xe1, 0xb9, 0x26, 0xe2, 0x8f, 0x83, 0xe7, 0x44, 0xf3, 0x4f, 0x01, 0xe9, 0xd7, 0x01};
 static uint8_t serialport_fifo_characteristic_uuid[] = {0x24, 0x56, 0xe1, 0xb9, 0x26, 0xe2, 0x8f, 0x83, 0xe7, 0x44, 0xf3, 0x4f, 0x01, 0xe9, 0xd7, 0x03};
@@ -50,6 +52,7 @@ static void gatt_data_event_handler(uint8_t packet_type, uint16_t channel, uint8
             len = gatt_event_notification_get_value_length(packet);
             write(fp, data, len);
             nr_received_bytes += len;
+            /*
             printf("data[%2u] ", len);
             for (int i = 0; i < len; i++) {
                 printf("%02x ", data[i]);
@@ -58,8 +61,13 @@ static void gatt_data_event_handler(uint8_t packet_type, uint16_t channel, uint8
                 printf("%c", isprint(data[i]) ? data[i] : '.');
             }
             printf("\n");
+            */
             if (nr_received_bytes > 1024*10) {
-                printf("%u bytes received. Disconnecting.\n", nr_received_bytes);
+                uint32_t stop_time = btstack_run_loop_get_time_ms();
+                uint32_t time_passed = stop_time - start_time;
+                uint32_t bytes_per_second =  nr_received_bytes * 1000 / time_passed;
+                printf("%u bytes received in %u ms. %u.%03u kB/s.\n", nr_received_bytes, time_passed, bytes_per_second / 1000, bytes_per_second % 1000);
+                printf("Disconnecting.\n");
                 close(fp);
                 gatt_client_stop_listening_for_characteristic_value_updates(&notification_registration);
                 gap_disconnect(connection_handle);
@@ -90,6 +98,8 @@ static void gatt_characteristic_event_handler(uint8_t packet_type, uint16_t chan
             fp = open("data.bin", O_WRONLY|O_CREAT, S_IRUSR);
             gatt_client_listen_for_characteristic_value_updates(&notification_registration, gatt_data_event_handler, connection_handle, &fifo_characteristic);
             gatt_client_write_client_characteristic_configuration(gatt_data_event_handler, connection_handle, &fifo_characteristic, GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION);
+            start_time = btstack_run_loop_get_time_ms();
+            printf("Receiving data.\n");
             break;
         default:
             printf("Unhandled event: 0x%02x\n", hci_event_packet_get_type(packet));
@@ -155,9 +165,9 @@ static void hci_event_handler(uint8_t packet_type, uint16_t channel, uint8_t* pa
         case HCI_EVENT_LE_META:
             // Wait for connection complete
             if (hci_event_le_meta_get_subevent_code(packet) ==  HCI_SUBEVENT_LE_CONNECTION_COMPLETE) {
-                printf("Connected\n");
+                printf("Connected.\n");
                 connection_handle = hci_subevent_le_connection_complete_get_connection_handle(packet);
-                printf("Search for serial port primary service.\n");
+                printf("Search for connectBlue serial port primary service.\n");
                 gatt_client_discover_primary_services_by_uuid128(gatt_service_event_handler, connection_handle, serialport_service_uuid);
             }
             break;
@@ -165,6 +175,7 @@ static void hci_event_handler(uint8_t packet_type, uint16_t channel, uint8_t* pa
         case HCI_EVENT_DISCONNECTION_COMPLETE:
             printf("Disconnected %s\n", bd_addr_to_str(cmdline_addr));
             {
+                // Need to shutdown HCI in a separate context.
                 static btstack_timer_source_t timer;
                 btstack_run_loop_set_timer(&timer, 0);
                 btstack_run_loop_set_timer_handler(&timer, shutdown_handler);
@@ -204,6 +215,17 @@ int btstack_main(int argc, const char* argv[])
     // Security Manager needed? Probably not.
     sm_init();
     sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+
+    // Tune for throughput?
+    // Use different connection parameters: conn interval min/max (* 1.25 ms),
+    // slave latency, supervision timeout, CE len min/max (* 0.6125 ms)
+    gap_set_connection_parameters(
+        6,              // Connection interval min (default 8)
+        6,              // Connection interval max (default 24)
+        4,              // Connection latency (default 4)
+        72,             // Supervision timeout (default 72)
+        2,              // Min CE length (default 2)
+        48);            // Max CE length (default 48)
 
     // Power on = start
     printf("Power on\n");
