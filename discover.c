@@ -57,9 +57,9 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                 for (int i = 0; i < length; i++) {
                     printf("%02x ", data[i]);
                 }
-                //for (int i = 0; i < length; i++) {
-                //    printf("%c", isprint(data[i]) ? data[i] : '.');
-                //}
+                for (int i = 0; i < length; i++) {
+                    printf("%c", isprint(data[i]) ? data[i] : '.');
+                }
                 printf("\n");
                 break;
             }

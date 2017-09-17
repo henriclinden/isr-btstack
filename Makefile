@@ -1,5 +1,5 @@
 #
-# Build a BLE discovery application
+# Build a BLE discover application
 #
 # Henric Lindén, rt-labs AB
 #
@@ -58,16 +58,16 @@ SRCS = $(CORE) $(COMMON) $(GATT_CLIENT) $(ATT) $(SM)
 OBJS = $(SRCS:.c=.o)
 
 # Applications to build
-all: discovery stream reflector
+all: discover stream reflect
 
-# Build and link the simple discovery app
-discovery: $(OBJS)
+# Build and link the simple discover app
+discover: $(OBJS)
 
 # Build and link the serialport endpoint app
 stream: $(OBJS)
 
-# Build and link the reflector app
-reflector: $(OBJS)
+# Build and link the reflect app
+reflect: $(OBJS)
 
 # Clean up
 clean:
