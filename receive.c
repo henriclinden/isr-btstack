@@ -61,6 +61,7 @@ static void gatt_data_event_handler(uint8_t packet_type, uint16_t channel, uint8
             if (nr_received_bytes > 1024*10) {
                 printf("%u bytes received. Disconnecting.\n", nr_received_bytes);
                 close(fp);
+                gatt_client_stop_listening_for_characteristic_value_updates(&notification_registration);
                 gap_disconnect(connection_handle);
             }
             break;
@@ -91,6 +92,7 @@ static void gatt_characteristic_event_handler(uint8_t packet_type, uint16_t chan
             gatt_client_write_client_characteristic_configuration(gatt_data_event_handler, connection_handle, &fifo_characteristic, GATT_CLIENT_CHARACTERISTICS_CONFIGURATION_NOTIFICATION);
             break;
         default:
+            printf("Unhandled event: 0x%02x\n", hci_event_packet_get_type(packet));
             break;
     }
 }
@@ -111,6 +113,7 @@ static void gatt_service_event_handler(uint8_t packet_type, uint16_t channel, ui
             gatt_client_discover_characteristics_for_service_by_uuid128(gatt_characteristic_event_handler, connection_handle, &serialport_service, serialport_fifo_characteristic_uuid);
             break;
         default:
+            printf("Unhandled event: 0x%02x\n", hci_event_packet_get_type(packet));
             break;
     }
 }
