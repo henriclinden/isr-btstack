@@ -51,16 +51,26 @@ static void packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* packe
                 int8_t rssi = gap_event_advertising_report_get_rssi(packet);
                 uint8_t length = gap_event_advertising_report_get_data_length(packet);
                 const uint8_t* data = gap_event_advertising_report_get_data(packet);
-
-                //printf("evt-type %u, addr-type %u, addr %s, rssi %d, data[%u] ", event_type, address_type, bd_addr_to_str(address), rssi, length);
-                printf("%u, %u, %s, %d, %u, ", event_type, address_type, bd_addr_to_str(address), rssi, length);
-                for (int i = 0; i < length; i++) {
-                    printf("%02x ", data[i]);
+                // Print if Adv event type = Connectable undirected advertising (0x00)
+                // Other types are:
+                //  0x01 = Connectable directed advertising
+                //  0x02 = Scannable undirected advertising
+                //  0x03 = Non connectable undirected advertising
+                //  0x04 = Scan Response
+                // Address type can be one of:
+                //  0x00 = Static (public)
+                //  0x01 = Random
+                if (event_type == 0x00) {
+                    //printf("evt-type %u, addr-type %u, addr %s, rssi %d, data[%u] ", event_type, address_type, bd_addr_to_str(address), rssi, length);
+                    printf("%u, %u, %s, %d, %u, ", event_type, address_type, bd_addr_to_str(address), rssi, length);
+                    for (int i = 0; i < length; i++) {
+                        printf("%02x ", data[i]);
+                    }
+                    for (int i = 0; i < length; i++) {
+                        printf("%c", isprint(data[i]) ? data[i] : '.');
+                    }
+                    printf("\n");
                 }
-                for (int i = 0; i < length; i++) {
-                    printf("%c", isprint(data[i]) ? data[i] : '.');
-                }
-                printf("\n");
                 break;
             }
             default:
