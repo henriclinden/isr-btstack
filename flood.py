@@ -11,18 +11,14 @@ from time import time
 from time import sleep
 
 serialports = [
-    '/dev/tty.usbserial-A4XOXZ5L'
+    '/dev/tty.usbserial-A4UV1JUQ',
+    '/dev/tty.usbserial-A4XOXZ5L',
+    '/dev/tty.usbserial-A4VE6FC1',
+    '/dev/tty.usbserial-A4UV1MS2',
+    '/dev/tty.usbserial-CBUD3I11',
+    '/dev/tty.usbserial-A4UV1KRR',
+    '/dev/tty.usbserial-A1002oLm'
 ]
-
-#serialports = [
-#    '/dev/tty.usbserial-A4UV1JUQ',
-#    '/dev/tty.usbserial-A4XOXZ5L',
-#    '/dev/tty.usbserial-A4VE6FC1',
-#    '/dev/tty.usbserial-A4UV1MS2',
-#    '/dev/tty.usbserial-CBUD3I11',
-#    '/dev/tty.usbserial-A4UV1KRR',
-#    '/dev/tty.usbserial-A1002oLm'
-#]
 
 class FloodThread(Thread):
     def __init__(self, stream, id, stats):
