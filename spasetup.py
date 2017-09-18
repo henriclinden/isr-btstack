@@ -13,6 +13,7 @@ serialports = [
     '/dev/tty.usbserial-A1002oLm'
 ]
 
+sensor_id = 1
 for port in serialports:
     spa = SPA(Serial(port, baudrate=57600, rtscts=True, timeout=None))
     spa.enterATMode()
@@ -53,7 +54,9 @@ for port in serialports:
     # spa.command("AT*ACCB=1,1")
 
     # Set default name.
-    spa.command("AT*AGLN=\"DeLaval ISR Sensor\",1")
+    # spa.command("AT*AGLN=\"DeLaval ISR Sensor\",1")
+    spa.command("AT*AGLN=\"DeLaval ISR {}\",1".format(sensor_id))
+    sensor_id = sensor_id + 1
 
     # Setup fine grained control of connection interval.
     for command, arg in [
