@@ -220,8 +220,8 @@ int btstack_main(int argc, const char* argv[])
     // Use different connection parameters: conn interval min/max (* 1.25 ms),
     // slave latency, supervision timeout, CE len min/max (* 0.6125 ms)
     gap_set_connection_parameters(
-        6,              // Connection interval min (default 8)
-        6,              // Connection interval max (default 24)
+        8,              // Connection interval min (default 8)
+        8,              // Connection interval max (default 24)
         4,              // Connection latency (default 4)
         72,             // Supervision timeout (default 72)
         2,              // Min CE length (default 2)
