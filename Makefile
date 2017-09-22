@@ -51,7 +51,7 @@ COMMON += queue.c hci_transport_h2_libusb.c btstack_run_loop_posix.c le_device_d
 
 # Use pkg-config for libusb
 CFLAGS  += $(shell pkg-config libusb-1.0 --cflags)
-LDFLAGS += $(shell pkg-config libusb-1.0 --libs)
+LDLIBS += $(shell pkg-config libusb-1.0 --libs)
 
 # Collect all necessary object files
 SRCS = $(CORE) $(COMMON) $(GATT_CLIENT) $(ATT) $(SM)

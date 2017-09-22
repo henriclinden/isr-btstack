@@ -24,7 +24,6 @@ int main(int argc, char* argv[])
 {
     int fd = 0;
     struct termios options;
-    int rc;
     struct sigaction act;
 
     if (argc != 2) {
@@ -49,19 +48,25 @@ int main(int argc, char* argv[])
     fcntl(fd, F_SETFL, 0);
 
     /* Config */
-    rc = tcgetattr(fd, &options);
+    tcgetattr(fd, &options);
     cfmakeraw(&options);
     options.c_cc[VMIN] = 1;
     options.c_cc[VTIME] = 10;
     cfsetspeed(&options, B57600);
+#ifdef __linux__
+    options.c_cflag |= (CLOCAL | CREAD | CRTSCTS);
+#else
     options.c_cflag |= (CLOCAL | CREAD | CS8 | CCTS_OFLOW | CRTS_IFLOW);
+#endif
 
+#ifndef __linux__
     /* Assert DTR */
     ioctl(fd, TIOCSDTR);
+#endif
 
     /* Commit */
     tcflush(fd, TCIFLUSH);
-    rc = tcsetattr(fd, TCSANOW, &options);
+    tcsetattr(fd, TCSANOW, &options);
 
     act.sa_handler = int_handler;
     sigaction(SIGINT, &act, NULL);
@@ -72,8 +77,10 @@ int main(int argc, char* argv[])
 
     printf("\nctrl-c\n");
 
+#ifndef __linux__
     /* Clear DTR */
     ioctl(fd, TIOCCDTR);
+#endif
 
     close(fd);
 
