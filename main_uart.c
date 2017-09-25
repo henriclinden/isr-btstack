@@ -35,7 +35,7 @@ static btstack_packet_callback_registration_t hci_event_callback_registration;
 static hci_transport_config_uart_t config = {
     HCI_TRANSPORT_CONFIG_UART,
     115200,         // Default baudrate after a reset of WL1273
-    0,              // Main baudrate
+    921600,         // 0 = use main baudrate, >1 = switch to given rate
     1,              // Flow control
     "/dev/ttyO5"    // Bluetooth on ELIN (ODIN-W160)
 };
