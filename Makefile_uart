@@ -1,5 +1,5 @@
 #
-# Build a BLE discover application
+# Build a BLE applications
 #
 # Henric Lindén, rt-labs AB
 #
@@ -11,7 +11,7 @@ VPATH += ${BTSTACK_ROOT}/src
 VPATH += ${BTSTACK_ROOT}/src/ble
 VPATH += ${BTSTACK_ROOT}/src/ble/gatt-service
 VPATH += ${BTSTACK_ROOT}/platform/posix
-VPATH += ${BTSTACK_ROOT}/platform/libusb
+VPATH += ${BTSTACK_ROOT}/platform/posix-h4
 
 CFLAGS += -I.
 CFLAGS += -I${BTSTACK_ROOT}/src
@@ -45,37 +45,38 @@ ATT += \
 SM += \
 	sm.c
 
-# Using Posix platform but exchange UART for libusb as transport.
-CORE += main.c btstack_stdin_posix.c
-COMMON += queue.c hci_transport_h2_libusb.c btstack_run_loop_posix.c le_device_db_fs.c btstack_link_key_db_fs.c wav_util.c
+PLATFORM += \
+	btstack_run_loop_posix.c \
+	btstack_link_key_db_fs.c \
+	btstack_stdin_posix.c \
+	le_device_db_fs.c \
+	wav_util.c
 
-# Use pkg-config for libusb
-CFLAGS  += $(shell pkg-config libusb-1.0 --cflags)
-LDLIBS += $(shell pkg-config libusb-1.0 --libs)
+# UART H4 as transport.
+PLATFORM += \
+	btstack_uart_block_posix.c \
+	hci_transport_h4.c \
+	main_uart.c
 
 # Collect all necessary object files
-SRCS = $(CORE) $(COMMON) $(GATT_CLIENT) $(ATT) $(SM)
+SRCS = $(APP) $(PLATFORM) $(CORE) $(COMMON) $(GATT_CLIENT) $(ATT) $(SM)
 OBJS = $(SRCS:.c=.o)
 
-# Applications to build
-all: discover stream reflect receive test-flood
+# Applications
+BLEAPPS = discover receive
+TESTAPPS = test-flood
 
-# Test program, flood
-test-flood:
+# Applications to build in the default path
+all: $(BLEAPPS) $(TESTAPPS)
 
-# Connect, receive 10k of data, disconnect.
-receive: $(OBJS)
+# Dependencis BLE apps
+$(BLEAPPS): $(OBJS)
 
-# Build and link the simple discover app
-discover: $(OBJS)
-
-# Build and link the serialport endpoint app
-stream: $(OBJS)
-
-# Build and link the reflect app
-reflect: $(OBJS)
+# Dependencis TEST apps
+$(TESTAPPS):
 
 # Clean up
 clean:
-	-$(RM) -f $(OBJS)
-
+	-$(RM) $(OBJS)
+	-$(RM) $(APPS)
+	-$(RM) -r *.dSYM

@@ -53,3 +53,4 @@ dkms.conf
 *.pyc
 .vscode
 hci_dump.pklg
+.ropeproject
