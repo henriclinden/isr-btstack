@@ -44,9 +44,4 @@ The Bluetooth part of WL1273 is conencted to ttyO5 on the ELIN and thus need a s
 
     make -f Makefile_uart
     
-You need to be 
-
-# Building
-To build the test apps use make.
-
-    make
+Note; you need to be root to run the apps.
