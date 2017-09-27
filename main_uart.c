@@ -47,6 +47,8 @@ static void hci_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* p
     UNUSED(channel);
     UNUSED(size);
 
+    static uint32_t init_start_time = 0;
+
     if (packet_type == HCI_EVENT_PACKET) {
         switch (hci_event_packet_get_type(packet)) {
             case BTSTACK_EVENT_STATE:
@@ -57,9 +59,11 @@ static void hci_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* p
                         break;
                     case HCI_STATE_INITIALIZING:
                         fprintf(stderr, "[HCI_STATE_INITIALIZING]\n");
+			init_start_time = btstack_run_loop_get_time_ms();
                         break;
                     case HCI_STATE_WORKING:
                         fprintf(stderr, "[HCI_STATE_WORKING]\n");
+			fprintf(stderr, "Startup time = %u\n", btstack_run_loop_get_time_ms() - init_start_time);
                         break;
                     case HCI_STATE_HALTING:
                         fprintf(stderr, "[HCI_STATE_HALTING]\n");
@@ -99,7 +103,7 @@ static void hci_packet_handler(uint8_t packet_type, uint16_t channel, uint8_t* p
                         hci_set_chipset(btstack_chipset_cc256x_instance());
                     }
                     else {
-                        printf("This app is made for the ELIN+ODIN-W160 combo.");
+                        printf("No TI Bluetooth chipset found. This app is made for the ELIN+ODIN-W160 combo.");
                     }
                 }
                 break;
