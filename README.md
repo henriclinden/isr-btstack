@@ -23,14 +23,28 @@ This tells the macOS Bluetooth stack not to use any other Bluetooth hardware exc
 The test apps depends on libusb. This can be installed using Homebrew.
 
     brew install libusb
+    
+The ASUS-BT400 is a H2 USB dongle. Use the USB Makefile for building.
+
+    make -f Makefile_usb
 
 ## Linux
 For Linux the following packages needs to be installed:
 
     sudo apt install git build-essential libusb-1.0-0-dev
+    
+The ASUS-BT400 is a H2 USB dongle. Use the USB Makefile for building.
+
+    make -f Makefile_usb
 
 ## Embedded
-TBD
+For embedded (Yocto Linux) unload current Bluetooth stacks (bluez) and drop the HCI driver.
+
+The Bluetooth part of WL1273 is conencted to ttyO5 on the ELIN and thus need a serial driver (H4) instead of USB (H2). Use Makefile_uart to build for ELIN:
+
+    make -f Makefile_uart
+    
+You need to be 
 
 # Building
 To build the test apps use make.
